@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Myra Ai - Transparent Compact Edition</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=Cinzel:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              obsidian: '#070709',
+              charcoal: '#111115',
+              sand: '#f5ebd7',
+              gold: '#e2ba73',
+              neonEmerald: '#00f5a0',
+              neonViolet: '#7928ca'
+            },
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+              display: ['"Space Grotesk"', 'sans-serif'],
+              serif: ['"Cinzel"', 'serif']
+            }
+          }
+        }
+      }
+    </script>
+
+    <!-- GSAP & Three.js Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+          box-sizing: border-box;
+          outline-color: #00f5a0;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            background-color: #070709;
+            color: #f5ebd7;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Three.js Background Canvas */
+        #hero-webgl {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        @keyframes borderColors {
+            0%, 100% { border-color: #ff0000; box-shadow: 0 0 20px #ff0000; }
+            25% { border-color: #00ff00; box-shadow: 0 0 20px #00ff00; }
+            50% { border-color: #ffff00; box-shadow: 0 0 20px #ffff00; }
+            75% { border-color: #00ffff; box-shadow: 0 0 20px #00ffff; }
+        }
+
+        .vip-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 380px; /* Chota compact box size */
+            background: transparent; /* Box ka background bilkul hata diya gaya hai */
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            border: 2.5px solid #ff0000;
+            animation: borderColors 10s infinite linear;
+            padding: 22px 20px;
+            border-radius: 16px;
+            text-align: center;
+            box-sizing: border-box;
+            margin: 15px;
+        }
+
+        .header-tag {
+            font-size: 11px;
+            color: #00ffff;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-shadow: 0 0 5px #00ffff;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .brand-logo {
+            font-size: 30px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .brand-logo .samir { color: #ff0000; text-shadow: 0 0 10px #ff0000; }
+        .brand-logo .dahit { color: #00ff00; text-shadow: 0 0 10px #00ff00; }
+
+        .line-divider {
+            border-bottom: 1px dashed rgba(245, 235, 215, 0.25);
+            margin: 14px 0;
+        }
+
+        .links-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .vip-btn {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            padding: 10px 15px;
+            font-size: 13px;
+            font-weight: bold;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            background: rgba(15, 15, 15, 0.5); /* Buttons ka halka dark tint taaki readable rahe */
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+        .vip-btn i { font-size: 16px; margin-right: 12px; width: 20px; text-align: center; }
+        .vip-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .facebook-link { border: 1px solid #1877f2; color: #1877f2; }
+        .facebook-link:hover { background: #1877f2; color: #fff; box-shadow: 0 0 12px #1877f2; }
+
+        .telegram-link { border: 1px solid #0088cc; color: #0088cc; }
+        .telegram-link:hover { background: #0088cc; color: #fff; box-shadow: 0 0 12px #0088cc; }
+
+        .youtube-link { border: 1px solid #ff0000; color: #ff0000; }
+        .youtube-link:hover { background: #ff0000; color: #fff; box-shadow: 0 0 12px #ff0000; }
+
+        .whatsapp-link { border: 1px solid #25d366; color: #25d366; }
+        .whatsapp-link:hover { background: #25d366; color: #fff; box-shadow: 0 0 12px #25d366; }
+
+        .tiktok-link { border: 1px solid #ffffff; color: #ffffff; }
+        .tiktok-link:hover { background: #ffffff; color: #000; box-shadow: 0 0 12px #ffffff; }
+
+        .instagram-link { border: 1px solid #e1306c; color: #e1306c; }
+        .instagram-link:hover { background: #e1306c; color: #fff; box-shadow: 0 0 12px #e1306c; }
+
+        .tracker-box {
+            background: rgba(5, 5, 5, 0.4);
+            border: 1px solid #ff0000;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: left;
+            font-size: 11px;
+            color: #00ff00;
+            box-shadow: inset 0 0 8px rgba(255, 0, 0, 0.3);
+        }
+        .tracker-title {
+            color: #ff0000;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .copyright { font-size: 9px; color: #888; margin-top: 12px; font-family: monospace; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+
+<!-- Ambient Background Glows -->
+<div class="absolute inset-0 -z-30 overflow-hidden pointer-events-none">
+  <div class="absolute inset-0 bg-gradient-to-b from-obsidian/90 via-obsidian/75 to-obsidian"></div>
+  <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-neonEmerald/10 via-transparent to-obsidian/90"></div>
+</div>
+
+<div class="absolute top-1/4 left-1/10 w-96 h-96 bg-neonEmerald/15 rounded-full blur-[140px] pointer-events-none -z-20"></div>
+<div class="absolute bottom-1/4 right-1/10 w-[450px] h-[450px] bg-gold/15 rounded-full blur-[160px] pointer-events-none -z-20"></div>
+
+<!-- Three.js 3D Background Canvas -->
+<canvas id="hero-webgl"></canvas>
+
+<div class="vip-container">
+    <div class="header-tag"><i class="fa-solid fa-terminal"></i> ai workspace</div>
+    
+    <div class="brand-logo">
+        <span class="samir">MYRA</span> <span class="dahit">MAYA</span>
+    </div>
+    
+    <div class="line-divider"></div>
+
+    <div class="links-grid">
+        <a href="https://wa.me/+9779764286696" target="_blank" class="vip-btn whatsapp-link" onclick="playBeep()">
+            <i class="fa-brands fa-whatsapp"></i> SAMIR WP 
+        </a>
+        
+        <a href="https://chat.whatsapp.com/FG2TZW14hnkBihyyXdofmr?s=cl&p=a&mlu=4&ilr=4&iam=2" target="_blank" class="vip-btn whatsapp-link" onclick="playBeep()">
+            <i class="fa-brands fa-whatsapp"></i> Maya Group 
+        </a>
+           
+         <a href="https://t.me/myra_ai16" target="_blank" class="vip-btn telegram-link" onclick="playBeep()">
+            <i class="fa-brands fa-telegram"></i> Telegram Channel 
+        </a>
+        
+        <a href="https://t.me/@Samir_Eraxx" target="_blank" class="vip-btn telegram-link" onclick="playBeep()">
+            <i class="fa-brands fa-telegram"></i> Telegram Account 
+        </a>
+
+        <a href="https://codeninjavik.in/download" target="_blank" class="vip-btn tiktok-link" onclick="playBeep()">
+            <i class="fa-solid fa-link"></i> Myra Link 
+        </a>
+
+        <a href="https://getmaya.online/android" target="_blank" class="vip-btn tiktok-link" onclick="playBeep()">
+            <i class="fa-solid fa-link"></i> Maya Link 
+        </a>        
+    </div>
+
+    <div class="line-divider"></div>
+
+    <div class="tracker-box">
+        <div class="tracker-title">MYRA MAYA AI</div>
+    </div>
+
+    <div class="copyright">CODE BY SAMIR HERO</div>
+</div>
+
+<script>
+    /* =====================================================================
+       THREE.JS 3D BACKGROUND RENDERER (Transparent Box Edition)
+    ===================================================================== */
+    const heroCanvas = document.getElementById('hero-webgl');
+    let heroRenderer, heroScene, heroCamera, heroGroup, torusKnot, wirePoly;
+    let heroAnimFrameId;
+    let heroPointerX = 0, heroPointerY = 0;
+    let heroTargetX = 0, heroTargetY = 0;
+
+    function initHeroThree() {
+      if (!heroCanvas) return;
+      heroScene = new THREE.Scene();
+      
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+
+      heroCamera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+      heroCamera.position.z = 5.2;
+
+      heroRenderer = new THREE.WebGLRenderer({
+        canvas: heroCanvas,
+        alpha: true,
+        antialias: true,
+        powerPreference: 'high-performance'
+      });
+      heroRenderer.setSize(width, height);
+      heroRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+      heroScene.add(ambientLight);
+
+      const light1 = new THREE.PointLight(0x00f5a0, 2.5, 50);
+      light1.position.set(5, 5, 5);
+      heroScene.add(light1);
+
+      const light2 = new THREE.PointLight(0xe2ba73, 2.8, 50);
+      light2.position.set(-5, -4, 4);
+      heroScene.add(light2);
+
+      heroGroup = new THREE.Group();
+
+      const knotGeo = new THREE.TorusKnotGeometry(1.2, 0.28, 128, 32, 2, 3);
+      const knotMat = new THREE.MeshStandardMaterial({
+        color: 0x1a1a24,
+        roughness: 0.2,
+        metalness: 0.85,
+        emissive: 0x221a0f,
+        emissiveIntensity: 0.6,
+        wireframe: false
+      });
+      torusKnot = new THREE.Mesh(knotGeo, knotMat);
+      heroGroup.add(torusKnot);
+
+      const icoGeo = new THREE.IcosahedronGeometry(1.9, 2);
+      const icoMat = new THREE.MeshBasicMaterial({
+        color: 0x00f5a0,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.35
+      });
+      wirePoly = new THREE.Mesh(icoGeo, icoMat);
+      heroGroup.add(wirePoly);
+
+      const particleCount = 120;
+      const particleGeo = new THREE.BufferGeometry();
+      const posArray = new Float32Array(particleCount * 3);
+      for (let i = 0; i < particleCount * 3; i++) {
+        posArray[i] = (Math.random() - 0.5) * 12;
+      }
+      particleGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+      const particleMat = new THREE.PointsMaterial({
+        size: 0.035,
+        color: 0xe2ba73,
+        transparent: true,
+        opacity: 0.7
+      });
+      const particles = new THREE.Points(particleGeo, particleMat);
+      heroGroup.add(particles);
+
+      heroScene.add(heroGroup);
+
+      window.addEventListener('pointermove', (e) => {
+        heroPointerX = (e.clientX / window.innerWidth - 0.5) * 1.5;
+        heroPointerY = (e.clientY / window.innerHeight - 0.5) * 1.5;
+      });
+
+      window.addEventListener('resize', () => {
+        if (!heroRenderer || !heroCamera) return;
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        heroCamera.aspect = w / h;
+        heroCamera.updateProjectionMatrix();
+        heroRenderer.setSize(w, h);
+      });
+
+      function renderHero() {
+        heroAnimFrameId = requestAnimationFrame(renderHero);
+        heroTargetX += (heroPointerX - heroTargetX) * 0.05;
+        heroTargetY += (heroPointerY - heroTargetY) * 0.05;
+
+        torusKnot.rotation.x += 0.005;
+        torusKnot.rotation.y += 0.007;
+
+        wirePoly.rotation.x -= 0.003;
+        wirePoly.rotation.y -= 0.004;
+
+        heroGroup.rotation.y = heroTargetX * 0.8;
+        heroGroup.rotation.x = heroTargetY * 0.8;
+
+        heroRenderer.render(heroScene, heroCamera);
+      }
+      renderHero();
+    }
+
+    function playBeep() {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(850, audioCtx.currentTime);
+        gainNode.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.08);
+    }
+
+    initHeroThree();
+</script>
+</body>
+</html>
